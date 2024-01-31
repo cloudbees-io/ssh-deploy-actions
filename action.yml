@@ -1,0 +1,145 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: action
+name: ssh actions
+inputs:
+  host:
+    description: 'SSH host address.'
+    required: true
+  port:
+    description: 'SSH port number.'
+    default: "22"
+  passphrase:
+    description: 'Passphrase for the SSH key.'
+  username: 
+    description: 'SSH username.'
+    required: true
+  password:
+    description: 'SSH password. (Optional if key_path is provided)'
+  sync:
+    description: 'Enable synchronous execution if multiple hosts are involved.'
+  use_insecure_cipher:
+    description: 'Include more ciphers by using insecure ciphers.'
+  cipher:
+    description: 'Allowed cipher algorithms. If unspecified, a sensible default is used.'
+  timeout:
+    description: 'Timeout duration for establishing SSH connection to the host.'
+    default: "30s"
+  command_timeout:
+    description: 'Timeout duration for SSH commands execution.'
+    default: "10m"
+  key:
+    description: 'Content of the SSH private key. For example, the raw content of ~/.ssh/id_rsa.'
+  key_path:
+    description: 'Path to the SSH private key file. (Optional if password is provided)'
+  fingerprint:
+    description: 'SHA256 fingerprint of the host public key.'
+  proxy_host:
+    description: 'SSH proxy host address.'
+  proxy_port:
+    description: 'SSH proxy port number.'
+    default: "22"
+  proxy_username:
+    description: 'SSH proxy username.'
+  proxy_password:
+    description: 'SSH proxy password.'
+  proxy_passphrase:
+    description: 'SSH proxy key passphrase.'
+  proxy_timeout:
+    description: 'Timeout duration for establishing SSH connection to the proxy host.'
+    default: "30s"
+  proxy_key:
+    description: 'Content of the SSH proxy private key. For example, the raw content of ~/.ssh/id_rsa.'
+  proxy_key_path:
+    description: 'Path to the SSH proxy private key file.'
+  proxy_fingerprint:
+    description: 'SHA256 fingerprint of the proxy host public key.'
+  proxy_cipher:
+    description: 'Allowed cipher algorithms for the proxy. If unspecified, a sensible default is used.'
+  proxy_use_insecure_cipher:
+    description: 'Include more ciphers for the proxy by using insecure ciphers.'
+  script:
+    description: 'Commands to be executed.'
+    required: true
+  script_stop:
+    description: 'Stop the script after the first failure.'
+  envs:
+    description: 'Environment variables to be passed to the shell script.'
+  envs_format:
+    description: 'Flexible configuration for environment value transfer.'
+  debug:
+    description: 'Enable debug mode.'
+  allenvs:
+    description: 'pass all environment variable to shell script.'
+runs:
+  using: composite
+  steps:
+  - id: ssh-login
+    uses: 'docker://public.ecr.aws/l7o7z1g8/actions/ssh-actions:main-32654de25c1915cfb13666c3f8098950559b71ae'  
+    env:
+      HOST: ${{ inputs.host }}
+      PORT: ${{ inputs.port }}
+      PASSPHRASE: ${{ inputs.passphrase }}
+      USERNAME: ${{ inputs.username }}
+      PASSWORD: ${{ inputs.password }}
+      SYNC: ${{ inputs.sync }}
+      USE_INSECURE_CIPHER: ${{ inputs.use_insecure_cipher }}
+      CIPHER: ${{ inputs.cipher }}
+      TIMEOUT: ${{ inputs.timeout }}
+      COMMAND_TIMEOUT: ${{ inputs.command_timeout }}
+      KEY: ${{ inputs.key }}
+      KEY_PATH: "data.pem"
+      FINGERPRINT: ${{ inputs.fingerprint }}
+      PROXY_HOST: ${{ inputs.proxy_host }}
+      PROXY_PORT: ${{ inputs.proxy_port }}
+      PROXY_USERNAME: ${{ inputs.proxy_username }}
+      PROXY_PASSWORD: ${{ inputs.proxy_password }}
+      PROXY_PASSPHRASE: ${{ inputs.proxy_passphrase }}
+      PROXY_TIMEOUT: ${{ inputs.proxy_timeout }}
+      PROXY_KEY: ${{ inputs.proxy_key }}
+      PROXY_KEY_PATH: ${{ inputs.proxy_key_path }}
+      PROXY_FINGERPRINT: ${{ inputs.proxy_fingerprint }}
+      PROXY_CIPHER: ${{ inputs.proxy_cipher }}
+      PROXY_USE_INSECURE_CIPHER: ${{ inputs.proxy_use_insecure_cipher }}
+      SCRIPT: ${{ inputs.script }}
+      SCRIPT_STOP: ${{ inputs.script_stop }}
+      ENVS: ${{ inputs.envs }}
+      ENVS_FORMAT: ${{ inputs.envs_format }}
+      DEBUG: ${{ inputs.debug }}
+      ALLENVS: ${{ inputs.allenvs }}
+    shell: sh
+    run: |
+      set +x
+     
+      cd /app
+
+      # prepare pem file from ssh key 
+      if [ -n "${{ inputs.key_path }}" ]; then
+       
+        #preprocess key data
+        kvalue="${{ inputs.key_path }}"
+        #get begin 
+        prefix=${kvalue%%----- *}
+        pidx=${#prefix}+5
+        begin="${kvalue:0:$pidx}"
+          
+        #get end
+        suffix=${kvalue%*-----END*}
+        sidx=${#suffix}
+        end="${kvalue:$sidx}"
+          
+        #get mid
+        mid="${kvalue#*$begin }"
+        mid="${mid% $end*}"
+          
+        echo $begin > data.pem
+        # replace all spaces with new line
+        echo "${mid}" | tr -s "[:space:]" "\\n" >> data.pem
+        echo $end >> data.pem
+        chmod 400 data.pem  
+      fi
+
+      # execute the ssh action 
+      ./ssh_actions_app 
+     
+      # clean up
+      rm -f data.pem

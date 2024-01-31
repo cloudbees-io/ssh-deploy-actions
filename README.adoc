@@ -1,0 +1,56 @@
+== ssh-deploy-actions
+  
+Executing the remote commands by connecting to server    
+
+
+## Cloudbees action for invoking the ssh-deploy-actions 
+
+This action can be used to execute the commands in the server by making connection with ssh key or with password.
+
+### Executing the remote commands with username and ssh key
+
+```yaml
+    steps:
+      - name: executing-remote-commands-using-username-and-ssh-key
+        uses: cloudbees-io/ssh-deploy-actions@v1
+        with:
+          host: ${{ secrets.SSH_ACTION_DEPLOY_HOST }}
+          username: progr
+          key_path: ${{ secrets.SSH_ACTION_DEPLOY_KEY }}
+          port: "22"
+          script: whoami,pwd,echo "hello"
+      
+``` 
+
+### Executing the remote commands with username and password
+
+```yaml
+    steps:  
+      - name: executing-remote-commands-using-username-and-pwd
+        uses: cloudbees-io/ssh-deploy-actions@v1
+        with:
+          host: ${{ secrets.SSH_ACTION_DEPLOY_HOST }}
+          username: progr
+          password: ${{ secrets.SSH_ACTION_DEPLOY_PASSWORD }}
+          port: "22"
+          script: whoami,pwd  
+      
+      
+``` 
+
+### Executing the remote commands with passphrase protected key
+
+```yaml
+    steps:
+      - name: executing-remote-commands-using-passphrase-protected-key
+        uses: cloudbees-io/ssh-deploy-actions@v1
+        with:
+          host: ${{ secrets.SSH_ACTION_DEPLOY_HOST }}
+          username: progr
+          key_path: ${{ secrets.SSH_ACTION_DEPLOY_KEY_1 }}
+          port: "22"
+          passphrase: ${{ secrets.SSH_ACTION_DEPLOY_PASSPHRASE }}  
+          script: whoami,pwd 
+      
+      
+``` 
