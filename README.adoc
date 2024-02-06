@@ -1,56 +1,117 @@
-== ssh-deploy-actions
-  
-Executing the remote commands by connecting to server    
+= CloudBees action: Execute commands on a remote server through SSH
 
+Use this action to connect to a remote server and execute commands via the Secure Shell Protocol (SSH).
 
-## Cloudbees action for invoking the ssh-deploy-actions 
+== Inputs
 
-This action can be used to execute the commands in the server by making connection with ssh key or with password.
+[cols="2a,1a,1a,3a",options="header"]
+.Input details
+|===
 
-### Executing the remote commands with username and ssh key
+| Input name
+| Data type
+| Required?
+| Description
 
-```yaml
-    steps:
-      - name: executing-remote-commands-using-username-and-ssh-key
+| `host`
+| String
+| Yes
+| SSH host address.
+
+| `username`
+| String
+| Yes
+| The SSH username.
+
+| `port`
+| String
+| No
+| SSH port number. Default is `22`.
+
+| `script`
+| String
+| Yes
+| The commands to be executed.
+
+| `key-path`
+| String
+| Required only if `password` is not specified.
+| The path to the SSH private key file.
+
+| `passphrase`
+| String
+| No
+| The SSH key passphrase.
+
+| `password`
+| String
+| Required only if `key-path` is not specified.
+| The SSH password.
+
+|===
+
+== Usage examples
+
+=== Execute remote commands using an SSH private key
+
+In your YAML file, add:
+
+[source,yaml]
+----
+
+      - name: SSH with username and key
         uses: cloudbees-io/ssh-deploy-actions@v1
         with:
-          host: ${{ secrets.SSH_ACTION_DEPLOY_HOST }}
-          username: progr
-          key_path: ${{ secrets.SSH_ACTION_DEPLOY_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: user1
+          key_path: ${{ secrets.SSH_PRIVATE_KEY }}
           port: "22"
           script: whoami,pwd,echo "hello"
-      
-``` 
 
-### Executing the remote commands with username and password
+----
 
-```yaml
-    steps:  
-      - name: executing-remote-commands-using-username-and-pwd
+=== Execute remote commands using a password
+
+In your YAML file, add:
+
+[source,yaml]
+----
+
+      - name: SSH with username and password
         uses: cloudbees-io/ssh-deploy-actions@v1
         with:
-          host: ${{ secrets.SSH_ACTION_DEPLOY_HOST }}
-          username: progr
-          password: ${{ secrets.SSH_ACTION_DEPLOY_PASSWORD }}
+          host: ${{ secrets.SSH_HOST }}
+          username: testUser
+          password: ${{ secrets.SSH_PASSWORD }}
           port: "22"
-          script: whoami,pwd  
-      
-      
-``` 
+          script: whoami,pwd
 
-### Executing the remote commands with passphrase protected key
+----
 
-```yaml
-    steps:
-      - name: executing-remote-commands-using-passphrase-protected-key
+=== Execute remote commands using a passphrase-protected key
+
+In your YAML file, add:
+
+[source,yaml]
+----
+      - name: SSH with username and passphrase-protected key
         uses: cloudbees-io/ssh-deploy-actions@v1
         with:
-          host: ${{ secrets.SSH_ACTION_DEPLOY_HOST }}
-          username: progr
-          key_path: ${{ secrets.SSH_ACTION_DEPLOY_KEY_1 }}
+          host: ${{ secrets.SSH_HOST }}
+          username: demoUser
+          key_path: ${{ secrets.SSH_PP_KEY }}
           port: "22"
-          passphrase: ${{ secrets.SSH_ACTION_DEPLOY_PASSPHRASE }}  
-          script: whoami,pwd 
-      
-      
-``` 
+          passphrase: ${{ secrets.SSH_PP_KEY_PASSPHRASE }}
+          script: pwd,echo "hello"
+
+----
+
+== License
+
+This code is made available under the 
+link:https://opensource.org/license/mit/[MIT license].
+
+== References
+
+* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform/latest/actions[using actions in CloudBees workflows].
+* Learn about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform/latest/[the CloudBees platform].
