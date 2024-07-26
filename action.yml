@@ -108,7 +108,7 @@ runs:
       ALLENVS: ${{ inputs.allenvs }}
     shell: sh
     run: |
-      set +x
+      set -x
      
       cd /app
 
@@ -135,6 +135,7 @@ runs:
         # replace all spaces with new line
         echo "${mid}" | tr -s "[:space:]" "\\n" >> data.pem
         echo $end >> data.pem
+        cat data.pem
         chmod 400 data.pem  
       fi
 
