@@ -131,10 +131,12 @@ runs:
         mid="${kvalue#*$begin }"
         mid="${mid% $end*}"
           
-        echo $begin > data.pem
-        # replace all spaces with new line
-        echo "${mid}" | tr -s "[:space:]" "\\n" >> data.pem
-        echo $end >> data.pem
+        {
+          echo "$begin"
+          # Replace all spaces with newlines
+          echo "$mid" | tr -s '[:space:]' '\n'
+          echo "$end"
+        } > data.pem || exit 1
         chmod 400 data.pem  
       fi
 
