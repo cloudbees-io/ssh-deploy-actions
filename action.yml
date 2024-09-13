@@ -1,3 +1,4 @@
+
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: action
 name: ssh actions
@@ -74,7 +75,7 @@ runs:
   using: composite
   steps:
   - id: ssh-login
-    uses: docker://public.ecr.aws/l7o7z1g8/actions/ssh-actions:main-8fcb343631d505157b854b41d99359575ad775f6  
+    uses: 'docker://public.ecr.aws/l7o7z1g8/actions/ssh-actions:main-8fcb343631d505157b854b41d99359575ad775f6'  
     env:
       HOST: ${{ inputs.host }}
       PORT: ${{ inputs.port }}
