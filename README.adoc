@@ -106,6 +106,40 @@ In your YAML file, add:
 
 ----
 
+
+=== Execute Chef knife commands and trigger cookbooks
+
+Chef is an open-source configuration management tool that automates infrastructure provisioning and management by defining system configurations as code.
+
+Use SSH access to the Chef workstation to execute knife commands and trigger cookbooks on the Chef nodes.
+
+NOTE: The platform user must provide a single workstation with pre-configured roles, a configured knife bootstrap, and a configured SSH.
+The communication between the workstation, server, and nodes must be verified and tested.
+
+In your YAML file, add:
+
+[source,yaml]
+----
+
+      - name: Execute remote Chef commands
+        uses: cloudbees-io/ssh-deploy-actions@v1
+        with:
+          host: ${{ secrets.MY_SSH_HOST }}
+          username: ${{ secrets.CHEF_WS_USER }}
+          key_path: ${{ secrets.CHEF_WS_KEY }}
+          port: "22"
+          script: cd chef-repo/ && sudo knife ssh "name:*" 'sudo chef-client -o "recipe[nano_install]"' -x ec2-user -p 22 -i chefnode.pem
+----
+
+The following command is used to log in to the Chef node machines and run the `chef-client` command, which executes the cookbook:
+
+[source,bash]
+----
+`sudo knife ssh "name:*" 'sudo chef-client -o "recipe[nano_install]"' -x ec2-user -p 22 -i chefnode.pem`
+----
+
+NOTE: For more information, refer to link:https://docs.chef.io/workstation/knife_ssh/[the Chef knife SSH documentation].
+
 == License
 
 This code is made available under the 
@@ -113,5 +147,5 @@ link:https://opensource.org/license/mit/[MIT license].
 
 == References
 
-* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform/latest/actions[using actions in CloudBees workflows].
-* Learn about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform/latest/[the CloudBees platform].
+* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-platform/latest/actions[using actions in CloudBees workflows].
+* Learn about link:https://docs.cloudbees.com/docs/cloudbees-platform/latest/[the CloudBees platform].
