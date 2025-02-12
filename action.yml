@@ -75,7 +75,8 @@ runs:
   using: composite
   steps:
   - id: ssh-login
-    uses: 'docker://public.ecr.aws/l7o7z1g8/actions/ssh-actions:main-a1cfc7c5509a5d402dc057d4ae278beb333fdd9a'  
+    #uses: 'docker://public.ecr.aws/l7o7z1g8/actions/ssh-actions:main-a1cfc7c5509a5d402dc057d4ae278beb333fdd9a'
+    uses: docker://020229604682.dkr.ecr.us-east-1.amazonaws.com/actions/ssh-actions:main-d4ba3b2d363c3f498c8f01013c5ecc62758b6bc3
     env:
       HOST: ${{ inputs.host }}
       PORT: ${{ inputs.port }}
